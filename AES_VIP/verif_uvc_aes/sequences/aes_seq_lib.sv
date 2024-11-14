@@ -1,28 +1,14 @@
 `ifndef AES_SEQ_LIB_SV
 `define AES_SEQ_LIB_SV
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Class: aes_default_seq
+//
+// Basic sequence that randomizes a sequence item.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class aes_default_seq extends uvm_sequence #(aes_tx);
 
   `uvm_object_utils(aes_default_seq)
-  rand bit[127:0] m_din_s;
-  rand bit[127:0] m_key_in_s;
-  rand bit m_cipher_s;
-
   aes_config  m_config;
-
-  /*
-  constraint m_din_c {
-    m_din_s == 128'hf5819905b1bc51d64d2475b775df355c;
-  }
-
-  constraint m_key_in_c {
-    m_key_in_s == 128'h8686315fb937a005e079b9e0e45da722;
-  }
-
-  constraint m_cipher_c {
-    m_cipher_s == 1'b1;
-  }
-  */
 
   extern function new(string name = "");
   extern task body();
@@ -37,15 +23,63 @@ endfunction : new
 
 task aes_default_seq::body();
   `uvm_info(get_type_name(), "Default sequence starting", UVM_HIGH)
-  /*
-  req = aes_tx::type_id::create("req");
-  start_item(req);
-  if ( !req.randomize() )
-    `uvm_fatal(get_type_name(), "Failed to randomize transaction")
-  finish_item(req);
-  */
-  `uvm_do_with (req, {m_din == m_din_s; m_key_in == m_key_in_s; m_cipher == m_cipher_s;})
+  `uvm_do_with (req, {})
   `uvm_info(get_type_name(), "Default sequence completed", UVM_HIGH)
 endtask : body
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Class: aes_cipher_seq
+//
+// Cipher sequence that randomizes a sequence item with m_cipher = 1
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class aes_cipher_seq extends uvm_sequence #(aes_tx);
+
+  `uvm_object_utils(aes_cipher_seq)
+
+  aes_config  m_config;
+
+  extern function new(string name = "");
+  extern task body();
+
+endclass : aes_cipher_seq
+
+
+function aes_cipher_seq::new(string name = "");
+  super.new(name);
+endfunction : new
+
+
+task aes_cipher_seq::body();
+  `uvm_info(get_type_name(), "Default sequence starting", UVM_HIGH)
+  `uvm_do_with (req, {m_cipher == 1'b1;})
+  `uvm_info(get_type_name(), "Default sequence completed", UVM_HIGH)
+endtask : body
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Class: aes_decipher_seq
+//
+// Decipher sequence that randomizes a sequence item with m_cipher = 0
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class aes_decipher_seq extends uvm_sequence #(aes_tx);
+
+  `uvm_object_utils(aes_decipher_seq)
+
+  aes_config  m_config;
+
+  extern function new(string name = "");
+  extern task body();
+
+endclass : aes_decipher_seq
+
+
+function aes_decipher_seq::new(string name = "");
+  super.new(name);
+endfunction : new
+
+
+task aes_decipher_seq::body();
+  `uvm_info(get_type_name(), "Default sequence starting", UVM_HIGH)
+  `uvm_do_with (req, {m_cipher == 1'b0;})
+  `uvm_info(get_type_name(), "Default sequence completed", UVM_HIGH)
+endtask : body
 `endif // AES_SEQ_LIB_SV

@@ -46,10 +46,9 @@ run_xrun() {
     $TOP_DIR/aes_test_pkg.sv \
     $TOP_DIR/aes_th.sv \
     $TOP_DIR/aes_tb.sv \
-    +UVM_VERBOSITY=UVM_MEDIUM \
-    +UVM_TESTNAME=aes_test  $*
+    +UVM_VERBOSITY=UVM_MEDIUM $*
 }
-
+#+UVM_TESTNAME=aes_test_decipher 
 
 #--------------------------------------------------------------
 # execution

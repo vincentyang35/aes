@@ -13,7 +13,9 @@ package aes_test_pkg;
   `include "../../sequences/aes_top_seq_lib.sv"
 
   // Tests
-  `include "test/aes_test.sv"
+  `include "test/aes_test_base.sv"
+  `include "test/aes_test_cipher.sv"
+  `include "test/aes_test_decipher.sv"
 
 
 endpackage : aes_test_pkg
