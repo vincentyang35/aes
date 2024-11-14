@@ -6,8 +6,9 @@ A simple UVM environment for all AES protocol-based IPs.
 
 ## Features
 According to the specification, this ATB VIP supports ATB protocol features below:
-  - T 
-  - TODO
+  - 128-bit plaintext and ciphertext data.
+  - 128-bit encryption keys.
+  - Cipher and decipher operation.
 
 It is composed of :
 - VIP (agent, interface, sequence, coverage)
@@ -15,10 +16,12 @@ It is composed of :
     - testbench
     - env (scoreboard, VIP, coverage)
     - virtual sequence
-    - c model dpi
-- run scripts
+    - VHDL DUT
+    - C model DPI
+- run script
 
 :file_folder: Folders architecture and details :
+
     |--doc                                 // Contains AES VIP verification plan
     |--verif_uvc_aes/                      // Contains AES UVM agent files
         |--c_model/                        // Contains AES C reference model files
