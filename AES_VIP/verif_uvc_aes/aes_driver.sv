@@ -31,7 +31,7 @@ task aes_driver::run_phase(uvm_phase phase);
   vif.cb.din <= 'h0;
   vif.cb.key_in <= 'h0;
   vif.cb.cipher <= 'h0;
-  @(vif.cb iff !(vif.cb.rst));
+  @(vif.cb iff !(vif.cb.arst));
 
   forever
   begin
@@ -72,11 +72,11 @@ task aes_driver::do_drive();
       handle_reset();
     end
   join_any : din_and_reset
-  
+
 endtask : do_drive
 
-task aes_driver::handle_reset();               
-  while(!vif.cb.rst) begin
+task aes_driver::handle_reset();
+  while(!vif.cb.arst) begin
     @(vif.cb);
   end
   vif.cb.start <= 'h0;

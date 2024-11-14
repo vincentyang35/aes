@@ -53,8 +53,10 @@ endfunction : connect_phase
 
 function void aes_env::end_of_elaboration_phase(uvm_phase phase);
   uvm_factory factory = uvm_factory::get();
-  `uvm_info(get_type_name(), "Information printed from aes_env::end_of_elaboration_phase method", UVM_MEDIUM)
-  `uvm_info(get_type_name(), $sformatf("Verbosity threshold is %d", get_report_verbosity_level()), UVM_MEDIUM)
+  `uvm_info(get_type_name(), "Information printed from aes_env::end_of_elaboration_phase method",
+            UVM_MEDIUM)
+  `uvm_info(get_type_name(), $sformatf("Verbosity threshold is %d", get_report_verbosity_level()),
+            UVM_MEDIUM)
   uvm_top.print_topology();
   factory.print();
 endfunction : end_of_elaboration_phase

@@ -41,6 +41,7 @@ TOOL REQUIRED: Cadence Incisive
 With `run` you can run a test by giving arguments in the command line.
 1.	To run a test: 
     - Go to `verif_uvc_aes/tb/xcelium/` directory.
+    - Make sure `run` file has right execution privileges by using `chmod u+x run`
     - Use `./run`, by default `aes_test` will be simulated. If needed, use help panel with `./run -help` command to see options.
 
 

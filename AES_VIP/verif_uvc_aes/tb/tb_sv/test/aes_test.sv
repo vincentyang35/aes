@@ -23,9 +23,6 @@ endfunction : new
 
 function void aes_test::build_phase(uvm_phase phase);
 
-  // you can modify any test-specific configuration object variables here,
-  // or override the default sequence
-
   m_env = aes_env::type_id::create("m_env", this);
 endfunction : build_phase
 

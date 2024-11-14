@@ -3,7 +3,7 @@
 
 interface aes_if(
     input clk,
-    input wire rst,
+    input wire arst,
     input wire start,
     input wire [127:0] din,
     input wire [127:0] key_in,
@@ -18,7 +18,7 @@ interface aes_if(
   import aes_pkg::*;
 
   clocking cb @(posedge clk);
-    inout rst;
+    inout arst;
     inout start;
     inout din;
     inout key_in;

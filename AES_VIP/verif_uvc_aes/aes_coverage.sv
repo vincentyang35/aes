@@ -53,7 +53,8 @@ endfunction : build_phase
 
 function void aes_coverage::report_phase(uvm_phase phase);
   if (m_config.coverage_enable)
-    `uvm_info(get_type_name(), $sformatf("Coverage score = %3.1f%%", m_cov.get_inst_coverage()), UVM_MEDIUM)
+    `uvm_info(get_type_name(), $sformatf("Coverage score = %3.1f%%", m_cov.get_inst_coverage()),
+              UVM_MEDIUM)
   else
     `uvm_info(get_type_name(), "Coverage disabled for this agent", UVM_MEDIUM)
 endfunction : report_phase

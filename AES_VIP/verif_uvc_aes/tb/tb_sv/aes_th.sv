@@ -6,14 +6,14 @@ module aes_th;
   import aes_pkg::*;
 
   logic clk = 0;
-  logic rst;
+  logic arst;
 
   always #10 clk = ~clk;
 
   initial
   begin
-    rst = 1;
-    #75 rst = 0;
+    arst = 1;
+    #75 arst = 0;
   end
 
   wire start;
@@ -25,7 +25,7 @@ module aes_th;
 
   aes_if aes_if(
     .clk    (clk),
-    .rst    (rst),
+    .arst    (arst),
     .start  (start),
     .din    (din),
     .key_in (key_in),
@@ -36,7 +36,7 @@ module aes_th;
 
   AES128 dut(
     .clk (clk),
-    .rst (rst),
+    .arst (arst),
     .start (aes_if.start),
     .din (aes_if.din),
     .key_in (aes_if.key_in),
@@ -44,5 +44,5 @@ module aes_th;
     .dout (dout),
     .finish (finish)
   );
-  
+
 endmodule

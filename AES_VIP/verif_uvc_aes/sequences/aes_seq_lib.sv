@@ -18,8 +18,7 @@ class aes_default_seq extends uvm_sequence #(aes_tx);
   constraint m_key_in_c {
     m_key_in_s == 128'h8686315fb937a005e079b9e0e45da722;
   }
-  
-  
+
   constraint m_cipher_c {
     m_cipher_s == 1'b1;
   }
