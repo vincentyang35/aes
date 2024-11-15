@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+ 
+
+#--------------------------------------------------------------
+# variables
+#--------------------------------------------------------------
+
+# Directory/files
+TEST_DIR="../tb_sv/test"
+OUTPUT_FILE="output/regression_logs/run_regression.log"
+
+# Test list
+parsed_test_list=()
+test_nb=0
+
+# Counters of test results
+nb_of_test_passed=0
+nb_of_test_failed=0
+nb_of_test_timedout=0
+nb_of_tests=0
+
+#--------------------------------------------------------------
+# function declarations
+#--------------------------------------------------------------
+
+
+# Function to run tests from a list
+run_tests_from_list() {
+    local test_list=("$@")
+    for file in "${test_list[@]}"; do
+        if [ -f "$file" ]; then
+            file_name=$(basename "$file" .sv)   # Get file name
+            ((nb_of_tests++))
+            # Run the test
+            log=$(./run +UVM_TESTNAME="$file_name")    
+            # echo "$log" # Uncomment if you want to print logs
+            # Searchs in logs to grep for test passed
+
+            result=$(grep -E "TEST PASSED|TEST FAILED" <<< "$log")
+
+            # Case to check if one the string searched was found
+            case "$result" in
+                *"TEST PASSED"*)
+                    ((nb_of_test_passed++))
+                    printf "%d\t%-45s\tPASSED\n" $nb_of_tests $file_name
+                    ;;
+
+                *"TEST FAILED"*)
+                    ((nb_of_test_failed++))
+                    printf "%d\t%-45s\tFAILED\n" $nb_of_tests $file_name
+                    ;;
+
+                *)
+                    ((nb_of_test_timedout++))
+                    printf "%d\t%-45s\tTIMED OUT\n" $nb_of_tests $file_name
+                    ;;
+
+            esac
+        fi
+    done
+
+}
+
+# Function to run all tests
+run_test () {
+    # -d : Check if the test directory exists
+    if [ ! -d "$TEST_DIR" ]; then
+        echo "The repository $TEST_DIR does not exist."
+        exit 1
+    fi
+ 
+    # Utilize all tests available in repository (pkg file is excluded)
+    echo -e "\nStarting run_regression"
+    
+    echo -e "\n------------------------------------------------------------------"
+    echo -e "\tRUNNING ALL TESTS IN $TEST_DIR"
+    echo -e "\tExecuted: $(date)"
+    echo -e "------------------------------------------------------------------\n"
+
+
+    # Separate the tests into non-faulty and faulty and remove excluded test
+    for file in "$TEST_DIR"/*.sv; do
+        if [ -f "$file" ]; then # -f : Check if variable file is a file
+            file_name=$(basename "$file" .sv)   # Get file name
+            parsed_test_list+=("$file")
+            ((test_nb++))            
+        fi
+    done  
+
+    
+    # Run tests 
+    echo -e "\t\tTests name and results"
+    echo -e "------------------------------------------------------------------"
+    echo -e "ID\tTest name\t\t\t\t\tResult"
+    echo -e "------------------------------------------------------------------"
+    run_tests_from_list "${parsed_test_list[@]}"
+
+
+    echo -e "\n------------------------------------------------------------------"
+    echo -e "\t\t\tEND OF ALL TESTS                         "
+    echo -e "------------------------------------------------------------------\n"
+ 
+    echo -e "************************** TEST SUMMARY **************************"
+ 
+    printf "Test counted according to their result"
+    echo -e "\nPASSED:\t\t$nb_of_test_passed"
+    echo -e "FAILED:\t\t$nb_of_test_failed"
+    echo -e "------------------\nTOTAL:\t\t$nb_of_tests"
+    echo -e "\nEnd of run_regression\nLogs saved in : $OUTPUT_FILE"
+}
+ 
+#--------------------------------------------------------------
+# execution
+#--------------------------------------------------------------
+
+mkdir -p output/regression_logs
+touch $OUTPUT_FILE
+time run_test | tee "$OUTPUT_FILE"
+
+exit
