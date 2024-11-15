@@ -33,26 +33,24 @@ class aes_scoreboard extends uvm_scoreboard;
 
 
   virtual function void write_from_aes(input aes_tx pkt);
-    $cast(m_cloned_pkt, pkt.clone());
+    $cast(m_cloned_pkt, pkt.clone()); 
     m_nb_of_items++;
 
-    // If it's an encryption or decryption
+    // If it's an encryption or decryption 
     if(pkt.m_cipher) begin
       m_nb_of_cipher++;
-      `uvm_info(get_type_name(),
-                $sformatf("Data encryption detected : [%d]", m_nb_of_items),
+      `uvm_info(get_type_name(), $sformatf("Data encryption detected : [%d]", m_nb_of_items), 
                 UVM_HIGH)
     end
     else begin
       m_nb_of_decipher++;
-      `uvm_info(get_type_name(),
-                $sformatf("Data decryption detected : [%d]", m_nb_of_items),
-                UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Data decryption detected : [%d]", m_nb_of_items),
+                 UVM_HIGH)
     end
-    `uvm_info(get_type_name(), $sformatf("\nDin : %h\nKey_in : %h\nDout : %h",
-                                        m_cloned_pkt.m_din,
-                                        m_cloned_pkt.m_key_in,
-                                        m_cloned_pkt.m_dout), UVM_HIGH)
+    `uvm_info(get_type_name(), 
+              $sformatf("\nDin : %h\nKey_in : %h\nDout : %h",
+              m_cloned_pkt.m_din, m_cloned_pkt.m_key_in, m_cloned_pkt.m_dout),
+              UVM_HIGH)
 
     // 128 bits -> 4x32bits array to easily pass arguments to C model
     {m_data_in[3], m_data_in[2],m_data_in[1], m_data_in[0]} = m_cloned_pkt.m_din;
@@ -66,9 +64,7 @@ class aes_scoreboard extends uvm_scoreboard;
     // Match or not
     if(c_compare == 1)begin
       m_nb_of_match++;
-      `uvm_info(get_type_name(),
-                $sformatf("DUT output and model matched : [%d]", m_nb_of_match),
-                UVM_LOW)
+      `uvm_info(get_type_name(), $sformatf("DUT output and model matched : [%d]", m_nb_of_match), UVM_LOW)
     end
     else begin
       `uvm_error(get_type_name(), $sformatf("Error: DUT output and model mismatched"))
@@ -100,5 +96,6 @@ endfunction: report_phase
 
 
 endclass : aes_scoreboard
+
 
 `endif //  `ifndef AES_SCOREBOARD
