@@ -2,6 +2,8 @@
 `define AES_SCOREBOARD
 
 `uvm_analysis_imp_decl(_from_aes)
+
+// DPI-C function to compare DUT output with C model
 import "DPI-C" function int compare_to_c_model(int data_in [4],
                                                int key_in[4],
                                                int data_out[4],
@@ -78,33 +80,22 @@ class aes_scoreboard extends uvm_scoreboard;
   //
   // UVM Report phase
   virtual function void report_phase(uvm_phase phase);
-    `uvm_info(get_type_name(), "\n***************************************************", UVM_LOW)
-    `uvm_info(get_type_name(), "\n\tAES VIP Scoreboard Summary", UVM_LOW)
-    `uvm_info(get_type_name(), "\n***************************************************", UVM_LOW)
-    `uvm_info(get_type_name(),"\n\tTransaction number recap", UVM_LOW)
-
-    `uvm_info(get_type_name(),
-              $sformatf("\nScoreboard checked %0d AES transactions", m_nb_of_items),
-              UVM_LOW)
-
-    `uvm_info(get_type_name(),
-              $sformatf("\nScoreboard found %0d matched transactions",m_nb_of_match),
-              UVM_LOW)
-
-    `uvm_info(get_type_name(), $sformatf("\nCheck score: %3.1f%%",
-              (m_nb_of_match/m_nb_of_items)*100),
-              UVM_LOW)
-
-    `uvm_info(get_type_name(),
-              "\n\n\tTransaction features",
-              UVM_LOW)
-
-    `uvm_info(get_type_name(),
-              $sformatf("\nNumber of cipher done   : %0d", m_nb_of_cipher),
-              UVM_LOW)
-    `uvm_info(get_type_name(),
-              $sformatf("\nNumber of decipher done : %0d\n", m_nb_of_decipher),
-              UVM_LOW)
+    `uvm_info(get_type_name(), $sformatf({"***************************************************\n",
+                                        "\tAES VIP Scoreboard Summary\n",
+                                        "***************************************************\n",
+                                        "\tTransaction number recap\n",
+                                        "Scoreboard checked %0d AES transactions\n",
+                                        "Scoreboard found %0d matched transactions\n",
+                                        "Check score: %3.1f%%\n",
+                                        "\n\tTransaction features\n",
+                                        "Number of cipher done   : %0d\n",
+                                        "Number of decipher done : %0d\n"},
+                                        m_nb_of_items,
+                                        m_nb_of_match,
+                                        (m_nb_of_match/m_nb_of_items)*100,
+                                        m_nb_of_cipher,
+                                        m_nb_of_decipher),
+                                        UVM_LOW)
 endfunction: report_phase
 
 

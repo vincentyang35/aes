@@ -191,20 +191,20 @@ PACKAGE BODY aes128_lib IS
         phase : aes_phase_type)
         RETURN block_4x4_array IS
         VARIABLE matrix_out : block_4x4_array;
-        VARIABLE x, y : STD_LOGIC_VECTOR(3 DOWNTO 0);
     BEGIN
 
         FOR i IN 0 TO 3 LOOP
             FOR j IN 0 TO 3 LOOP
-                y := matrix_in(i, j)(3 DOWNTO 0);
-                x := matrix_in(i, j)(7 DOWNTO 4);
                 IF (phase = CIPHER_PHASE) THEN
-                    matrix_out(i, j) := sbox(TO_INTEGER(unsigned(x)), TO_INTEGER(unsigned(y)));
+                    matrix_out(i, j) := sbox(TO_INTEGER(unsigned(matrix_in(i, j)(7 DOWNTO 4))), -- x
+                    TO_INTEGER(unsigned(matrix_in(i, j)(3 DOWNTO 0)))); -- y
                 ELSIF (phase = DECIPHER_PHASE) THEN
-                    matrix_out(i, j) := inv_sbox(TO_INTEGER(unsigned(x)), TO_INTEGER(unsigned(y)));
+                    matrix_out(i, j) := inv_sbox(TO_INTEGER(unsigned(matrix_in(i, j)(7 DOWNTO 4))), -- x
+                    TO_INTEGER(unsigned(matrix_in(i, j)(3 DOWNTO 0)))); -- y
                 END IF;
             END LOOP;
         END LOOP;
+
         RETURN matrix_out;
     END FUNCTION subbytes_f;
 
@@ -213,50 +213,19 @@ PACKAGE BODY aes128_lib IS
         RETURN block_4x4_array IS
         VARIABLE matrix_out : block_4x4_array;
     BEGIN
-        -- Row 0 
-        matrix_out(0, 0) := matrix_in(0, 0);
-        matrix_out(0, 1) := matrix_in(0, 1);
-        matrix_out(0, 2) := matrix_in(0, 2);
-        matrix_out(0, 3) := matrix_in(0, 3);
-
-        -- Row 1
-        IF (phase = CIPHER_PHASE) THEN
-            matrix_out(1, 0) := matrix_in(1, 1);
-            matrix_out(1, 1) := matrix_in(1, 2);
-            matrix_out(1, 2) := matrix_in(1, 3);
-            matrix_out(1, 3) := matrix_in(1, 0);
-        ELSIF (phase = DECIPHER_PHASE) THEN
-            matrix_out(1, 0) := matrix_in(1, 3);
-            matrix_out(1, 1) := matrix_in(1, 0);
-            matrix_out(1, 2) := matrix_in(1, 1);
-            matrix_out(1, 3) := matrix_in(1, 2);
-        END IF;
-
-        -- Row 2
-        IF (phase = CIPHER_PHASE) THEN
-            matrix_out(2, 0) := matrix_in(2, 2);
-            matrix_out(2, 1) := matrix_in(2, 3);
-            matrix_out(2, 2) := matrix_in(2, 0);
-            matrix_out(2, 3) := matrix_in(2, 1);
-        ELSIF (phase = DECIPHER_PHASE) THEN
-            matrix_out(2, 0) := matrix_in(2, 2);
-            matrix_out(2, 1) := matrix_in(2, 3);
-            matrix_out(2, 2) := matrix_in(2, 0);
-            matrix_out(2, 3) := matrix_in(2, 1);
-        END IF;
-
-        -- Row 3
-        IF (phase = CIPHER_PHASE) THEN
-            matrix_out(3, 0) := matrix_in(3, 3);
-            matrix_out(3, 1) := matrix_in(3, 0);
-            matrix_out(3, 2) := matrix_in(3, 1);
-            matrix_out(3, 3) := matrix_in(3, 2);
-        ELSIF (phase = DECIPHER_PHASE) THEN
-            matrix_out(3, 0) := matrix_in(3, 1);
-            matrix_out(3, 1) := matrix_in(3, 2);
-            matrix_out(3, 2) := matrix_in(3, 3);
-            matrix_out(3, 3) := matrix_in(3, 0);
-        END IF;
+        FOR j IN 0 TO 3 LOOP
+            IF (phase = CIPHER_PHASE) THEN
+                matrix_out(0, j) := matrix_in(0, j);
+                matrix_out(1, j) := matrix_in(1, (j + 1) MOD 4);
+                matrix_out(2, j) := matrix_in(2, (j + 2) MOD 4);
+                matrix_out(3, j) := matrix_in(3, (j + 3) MOD 4);
+            ELSIF (phase = DECIPHER_PHASE) THEN
+                matrix_out(0, j) := matrix_in(0, j);
+                matrix_out(1, j) := matrix_in(1, (j + 3) MOD 4);
+                matrix_out(2, j) := matrix_in(2, (j + 2) MOD 4);
+                matrix_out(3, j) := matrix_in(3, (j + 1) MOD 4);
+            END IF;
+        END LOOP;
         RETURN matrix_out;
     END FUNCTION shiftrows_f;
     FUNCTION mixcolumns_f(matrix_in : block_4x4_array;
@@ -300,22 +269,28 @@ PACKAGE BODY aes128_lib IS
     FUNCTION key_expansion(key_in : STD_LOGIC_VECTOR(127 DOWNTO 0)) RETURN STD_LOGIC_VECTOR IS
         VARIABLE w : key_word_array;
         VARIABLE temp : STD_LOGIC_VECTOR(31 DOWNTO 0);
-        VARIABLE expanded_key : STD_LOGIC_VECTOR(1407 DOWNTO 0);
+        -- expanded_key size for:
+        -- AES128 : 44 words -> 176 bytes -> 1408 bits
+        -- AES192 : 52 words -> 208 bytes -> 1664 bits
+        -- AES256 : 60 words -> 240 bytes -> 1920 bits
+        VARIABLE expanded_key : STD_LOGIC_VECTOR((Nb * (Nr + 1) * 32) - 1 DOWNTO 0);
 
     BEGIN
-        -- Initialize the fiarst 4 words with the initial key
-        FOR i IN 0 TO 3 LOOP
+        -- Initialize the first 4 words with the initial key
+        FOR i IN 0 TO Nk - 1 LOOP
             w(i) := key_in(127 - 32 * i DOWNTO 96 - 32 * i);
         END LOOP;
 
         -- Generate the remaining key words
-        FOR i IN 4 TO 43 LOOP
+        FOR i IN Nk TO 43 LOOP
             temp := w(i - 1);
-            IF (i MOD 4 = 0) THEN
-                temp := subword(rotword(temp)) XOR Rcon(i/4 - 1);
+            IF (i MOD Nk = 0) THEN
+                temp := subword(rotword(temp)) XOR Rcon(i/Nk - 1);
             END IF;
-            -- XOR with the word 4 positions back
-            w(i) := w(i - 4) XOR temp;
+            -- TODO: Add ELIF Nk > 6 & i mod Nk = 4 for AES192 and AES256
+
+            -- XOR with the word Nk positions back
+            w(i) := w(i - Nk) XOR temp;
         END LOOP;
 
         -- Combine the key words into a single vector
@@ -330,15 +305,14 @@ PACKAGE BODY aes128_lib IS
     BEGIN
         RETURN word(23 DOWNTO 0) & word(31 DOWNTO 24);
     END FUNCTION;
+
     FUNCTION subword(word : STD_LOGIC_VECTOR(31 DOWNTO 0)) RETURN STD_LOGIC_VECTOR IS
         VARIABLE sbox_return : STD_LOGIC_VECTOR(31 DOWNTO 0);
-        VARIABLE x, y : STD_LOGIC_VECTOR(3 DOWNTO 0);
 
     BEGIN
         FOR i IN 0 TO 3 LOOP
-            y := word((i * 8) + 3 DOWNTO (i * 8));
-            x := word((i * 8) + 7 DOWNTO (i * 8) + 4);
-            sbox_return((i * 8) + 7 DOWNTO (i * 8)) := sbox(TO_INTEGER(unsigned(x)), TO_INTEGER(unsigned(y)));
+            sbox_return((i * 8) + 7 DOWNTO (i * 8)) := sbox(TO_INTEGER(unsigned(word((i * 8) + 7 DOWNTO (i * 8) + 4))), -- x
+            TO_INTEGER(unsigned(word((i * 8) + 3 DOWNTO (i * 8))))); -- y
         END LOOP;
         RETURN sbox_return;
     END FUNCTION;

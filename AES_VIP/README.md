@@ -32,21 +32,50 @@ It is composed of :
                 |--test/                   // Contains AES UVM test files
             |--xcelium/                    // Contains script files to run the simulation
                 |--output/                 // Contains simulations results files
+                    |--regression_logs/    // Contains regression script logs
 
 ## Usage
-TOOL REQUIRED: Cadence Incisive
+TOOL REQUIRED: Cadence Incisive, GCC
 ### Run a simulation
 
 #### run script
 With `run` you can run a test by giving arguments in the command line.
-1.	To run a test: 
+
+`run` file will firstly compile AES C model code with GCC and then AES SV/UVM code with Xcelium.
+
+-	To run a test: 
     - Go to `verif_uvc_aes/tb/xcelium/` directory.
     - Make sure `run` file has right execution privileges by using `chmod u+x run`
-    - Use `./run`, by default `aes_test` will be simulated. If needed, use help panel with `./run -help` command to see options.
+    - Use `./run` and give test name in argument.
+
+#### Executions example:
+- Run the test aes_test_cipher:
+```sh
+cd tb/xcelium
+chmod u+x run
+./run +UVM_TESTNAME=aes_test_cipher
+```
+
+### Run a regression
+#### run_regression script
+The purpose of  `run_regression` is to run all tests, check if they have passed or failed and then report results to the user in the console and in a log file.
+- To run a regression: 
+    -	Go to `verif_uvc_aes/tb/xcelium/` directory.
+    - Make sure `run_regression` file has right execution privileges by using `chmod u+x run_regression`
+    -	Use `./run_regression`.
+
+#### Executions example:
+-	Run a regression:
+```sh
+cd tb/xcelium
+chmod u+x run_regression
+./run_regression input/regression_config.txt
+```
+Logs are stored in `verif_uvc_aes/tb/xcelium/output/regression_log/` directory.
+
 
 
 ## TODO
-  - Make test & sequence
   - Assertions
   - Add more comments to describe functions/tasks
   - Clean code

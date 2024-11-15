@@ -37,13 +37,6 @@ endfunction : new
 
 task aes_default_seq::body();
   `uvm_info(get_type_name(), "Default sequence starting", UVM_HIGH)
-  /*
-  req = aes_tx::type_id::create("req");
-  start_item(req);
-  if ( !req.randomize() )
-    `uvm_fatal(get_type_name(), "Failed to randomize transaction")
-  finish_item(req);
-  */
   `uvm_do_with (req, {m_din == m_din_s; m_key_in == m_key_in_s; m_cipher == m_cipher_s;})
   `uvm_info(get_type_name(), "Default sequence completed", UVM_HIGH)
 endtask : body

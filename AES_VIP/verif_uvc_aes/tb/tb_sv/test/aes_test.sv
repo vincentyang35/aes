@@ -8,10 +8,8 @@ class aes_test extends uvm_test;
   aes_env m_env;
 
   extern function new(string name, uvm_component parent);
-
   extern function void build_phase(uvm_phase phase);
   extern task run_phase(uvm_phase phase);
-
 
 endclass : aes_test
 
@@ -22,7 +20,6 @@ endfunction : new
 
 
 function void aes_test::build_phase(uvm_phase phase);
-
   m_env = aes_env::type_id::create("m_env", this);
 endfunction : build_phase
 
