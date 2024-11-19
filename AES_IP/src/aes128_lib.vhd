@@ -18,27 +18,27 @@
 -- 
 ----------------------------------------------------------------------------------
 
-LIBRARY IEEE;
-USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.NUMERIC_STD.ALL;
-USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+library IEEE;
+use IEEE.STD_LOGIC_1164.all;
+use IEEE.NUMERIC_STD.all;
+use IEEE.STD_LOGIC_UNSIGNED.all;
 
-PACKAGE aes128_lib IS
+package aes128_lib is
 
     ---------------------------------------------------------------------------
     -- Type & constant definition
     ---------------------------------------------------------------------------
 
-    TYPE block_4x4_array IS ARRAY (0 TO 3, 0 TO 3) OF STD_LOGIC_VECTOR(7 DOWNTO 0);
-    TYPE sbox_array IS ARRAY (0 TO 15, 0 TO 15) OF STD_LOGIC_VECTOR(7 DOWNTO 0);
-    TYPE rcon_array IS ARRAY (0 TO 9) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
-    TYPE key_word_array IS ARRAY (0 TO 43) OF STD_LOGIC_VECTOR(31 DOWNTO 0); -- 44 words for AES-128
-    TYPE fsm_type IS (IDLE, LOAD, SUBBYTES, SHIFTROWS, MIXCOLUMNS, ADDROUNDKEY, DONE);
-    TYPE aes_phase_type IS (CIPHER_PHASE, DECIPHER_PHASE);
+    type block_4x4_array is array (0 to 3, 0 to 3) of std_logic_vector(7 downto 0);
+    type sbox_array is array (0 to 15, 0 to 15) of std_logic_vector(7 downto 0);
+    type rcon_array is array (0 to 9) of std_logic_vector(31 downto 0);
+    type key_word_array is array (0 to 43) of std_logic_vector(31 downto 0); -- 44 words for AES-128
+    type fsm_type is (IDLE, LOAD, SUBBYTES, SHIFTROWS, MIXCOLUMNS, ADDROUNDKEY, DONE);
+    type aes_phase_type is (CIPHER_PHASE, DECIPHER_PHASE);
 
-    CONSTANT Nb, Nk : INTEGER := 4;
-    CONSTANT Nr : INTEGER := 10;
-    CONSTANT sbox : sbox_array := (
+    constant Nb, Nk : integer    := 4;
+    constant Nr     : integer    := 10;
+    constant sbox   : sbox_array := (
         --     0      1      2      3      4      5      6      7      8      9      A      B      C      D      E      F
         (x"63", x"7C", x"77", x"7B", x"F2", x"6B", x"6F", x"C5", x"30", x"01", x"67", x"2B", x"FE", x"D7", x"AB", x"76"), -- 0
         (x"CA", x"82", x"C9", x"7D", x"FA", x"59", x"47", x"F0", x"AD", x"D4", x"A2", x"AF", x"9C", x"A4", x"72", x"C0"), -- 1
@@ -55,10 +55,10 @@ PACKAGE aes128_lib IS
         (x"BA", x"78", x"25", x"2E", x"1C", x"A6", x"B4", x"C6", x"E8", x"DD", x"74", x"1F", x"4B", x"BD", x"8B", x"8A"), -- C
         (x"70", x"3E", x"B5", x"66", x"48", x"03", x"F6", x"0E", x"61", x"35", x"57", x"B9", x"86", x"C1", x"1D", x"9E"), -- D
         (x"E1", x"F8", x"98", x"11", x"69", x"D9", x"8E", x"94", x"9B", x"1E", x"87", x"E9", x"CE", x"55", x"28", x"DF"), -- E
-        (x"8C", x"A1", x"89", x"0D", x"BF", x"E6", x"42", x"68", x"41", x"99", x"2D", x"0F", x"B0", x"54", x"BB", x"16") -- F
+        (x"8C", x"A1", x"89", x"0D", x"BF", x"E6", x"42", x"68", x"41", x"99", x"2D", x"0F", x"B0", x"54", x"BB", x"16")  -- F
     );
 
-    CONSTANT inv_sbox : sbox_array := (
+    constant inv_sbox : sbox_array := (
         --     0      1      2      3      4      5      6      7      8      9      A      B      C      D      E      F
         (x"52", x"09", x"6A", x"D5", x"30", x"36", x"A5", x"38", x"BF", x"40", x"A3", x"9E", x"81", x"F3", x"D7", x"FB"), -- 0
         (x"7C", x"E3", x"39", x"82", x"9B", x"2F", x"FF", x"87", x"34", x"8E", x"43", x"44", x"C4", x"DE", x"E9", x"CB"), -- 1
@@ -75,9 +75,9 @@ PACKAGE aes128_lib IS
         (x"1F", x"DD", x"A8", x"33", x"88", x"07", x"C7", x"31", x"B1", x"12", x"10", x"59", x"27", x"80", x"EC", x"5F"), -- C
         (x"60", x"51", x"7F", x"A9", x"19", x"B5", x"4A", x"0D", x"2D", x"E5", x"7A", x"9F", x"93", x"C9", x"9C", x"EF"), -- D
         (x"A0", x"E0", x"3B", x"4D", x"AE", x"2A", x"F5", x"B0", x"C8", x"EB", x"BB", x"3C", x"83", x"53", x"99", x"61"), -- E
-        (x"17", x"2B", x"04", x"7E", x"BA", x"77", x"D6", x"26", x"E1", x"69", x"14", x"63", x"55", x"21", x"0C", x"7D") -- F
+        (x"17", x"2B", x"04", x"7E", x"BA", x"77", x"D6", x"26", x"E1", x"69", x"14", x"63", x"55", x"21", x"0C", x"7D")  -- F
     );
-    CONSTANT rcon : rcon_array := (
+    constant rcon : rcon_array := (
         x"01000000", x"02000000", x"04000000", x"08000000", x"10000000", x"20000000", x"40000000", x"80000000", x"1b000000", x"36000000"
     );
 
@@ -86,17 +86,17 @@ PACKAGE aes128_lib IS
     ---------------------------------------------------------------------------
 
     -- Used to transfer data from a 128 bits std_logic_vector to a 128 bits 4x4 bytes matrix 
-    FUNCTION vector_to_matrix(vector_in : STD_LOGIC_VECTOR(127 DOWNTO 0)) RETURN block_4x4_array;
+    function vector_to_matrix(vector_in : std_logic_vector(127 downto 0)) return block_4x4_array;
 
     -- Used to transfer data from a 128 bits 4x4 bytes matrix to a 128 bits std_logic_vector 
-    FUNCTION matrix_to_vector(matrix_in : block_4x4_array) RETURN STD_LOGIC_VECTOR;
+    function matrix_to_vector(matrix_in : block_4x4_array) return std_logic_vector;
 
     -- Performs multiplication by 2 in GF, done with a left shift by 1 bit
-    FUNCTION gf_mult(a : STD_LOGIC_VECTOR(7 DOWNTO 0)) RETURN STD_LOGIC_VECTOR;
-    FUNCTION gf_mult_09(a : STD_LOGIC_VECTOR(7 DOWNTO 0)) RETURN STD_LOGIC_VECTOR;
-    FUNCTION gf_mult_0b(a : STD_LOGIC_VECTOR(7 DOWNTO 0)) RETURN STD_LOGIC_VECTOR;
-    FUNCTION gf_mult_0d(a : STD_LOGIC_VECTOR(7 DOWNTO 0)) RETURN STD_LOGIC_VECTOR;
-    FUNCTION gf_mult_0e(a : STD_LOGIC_VECTOR(7 DOWNTO 0)) RETURN STD_LOGIC_VECTOR;
+    function gf_mult(a    : std_logic_vector(7 downto 0)) return std_logic_vector;
+    function gf_mult_09(a : std_logic_vector(7 downto 0)) return std_logic_vector;
+    function gf_mult_0b(a : std_logic_vector(7 downto 0)) return std_logic_vector;
+    function gf_mult_0d(a : std_logic_vector(7 downto 0)) return std_logic_vector;
+    function gf_mult_0e(a : std_logic_vector(7 downto 0)) return std_logic_vector;
     ----------------------------------------------------
     -- AES functions 
     -- Set phase to 1 to have cipher function
@@ -104,217 +104,217 @@ PACKAGE aes128_lib IS
     -----------------------------------------------------
 
     -- Applies the SubBytes transformation, substituting each byte in matrix_in with a corresponding value from sbox
-    FUNCTION subbytes_f(matrix_in : block_4x4_array;
-        phase : aes_phase_type
-    ) RETURN block_4x4_array;
+    function subbytes_f(matrix_in : block_4x4_array;
+        phase                         : aes_phase_type
+    ) return block_4x4_array;
 
     -- Applies the ShiftRows transformation, shifting rows of matrix_in
-    FUNCTION shiftrows_f(matrix_in : block_4x4_array;
-        phase : aes_phase_type
-    ) RETURN block_4x4_array;
+    function shiftrows_f(matrix_in : block_4x4_array;
+        phase                          : aes_phase_type
+    ) return block_4x4_array;
 
     -- Applies the MixColumns transformation, mixing columns of matrix_in
-    FUNCTION mixcolumns_f(matrix_in : block_4x4_array;
-        phase : aes_phase_type
-    ) RETURN block_4x4_array;
+    function mixcolumns_f(matrix_in : block_4x4_array;
+        phase                           : aes_phase_type
+    ) return block_4x4_array;
 
     -- Adds the round key to the state matrix by performing an XOR operation between the matrix_in and key_w
-    FUNCTION addroundkey_f(matrix_in : block_4x4_array;
-        key_w : STD_LOGIC_VECTOR(127 DOWNTO 0)
-    ) RETURN block_4x4_array;
+    function addroundkey_f(matrix_in : block_4x4_array;
+        key_w                            : std_logic_vector(127 downto 0)
+    ) return block_4x4_array;
 
     -- Generates round keys from the initial key 
-    FUNCTION key_expansion(key_in : STD_LOGIC_VECTOR(127 DOWNTO 0)) RETURN STD_LOGIC_VECTOR;
+    function key_expansion(key_in : std_logic_vector(127 downto 0)) return std_logic_vector;
 
     -- Rotates 24 bits to the left and 8 bits to the right
-    FUNCTION rotword(word : STD_LOGIC_VECTOR(31 DOWNTO 0)) RETURN STD_LOGIC_VECTOR;
+    function rotword(word : std_logic_vector(31 downto 0)) return std_logic_vector;
 
     -- Applies byte substitution using the sbox
-    FUNCTION subword(word : STD_LOGIC_VECTOR(31 DOWNTO 0)) RETURN STD_LOGIC_VECTOR;
-END aes128_lib;
+    function subword(word : std_logic_vector(31 downto 0)) return std_logic_vector;
+end aes128_lib;
 
-PACKAGE BODY aes128_lib IS
-    FUNCTION vector_to_matrix(vector_in : STD_LOGIC_VECTOR(127 DOWNTO 0)) RETURN block_4x4_array IS
-        VARIABLE matrix_din : block_4x4_array;
-    BEGIN
-        FOR i IN 0 TO 3 LOOP
-            FOR j IN 0 TO 3 LOOP
-                matrix_din(i, j) := vector_in(127 - 8 * (i + 4 * j) DOWNTO 120 - 8 * (i + 4 * j));
-            END LOOP;
-        END LOOP;
-        RETURN matrix_din;
-    END FUNCTION vector_to_matrix;
+package body aes128_lib is
+    function vector_to_matrix(vector_in : std_logic_vector(127 downto 0)) return block_4x4_array is
+        variable matrix_din                 : block_4x4_array;
+    begin
+        for i in 0 to 3 loop
+            for j in 0 to 3 loop
+                matrix_din(i, j) := vector_in(127 - 8 * (i + 4 * j) downto 120 - 8 * (i + 4 * j));
+            end loop;
+        end loop;
+        return matrix_din;
+    end function vector_to_matrix;
 
-    FUNCTION matrix_to_vector(matrix_in : block_4x4_array) RETURN STD_LOGIC_VECTOR IS
-        VARIABLE vector_out : STD_LOGIC_VECTOR(127 DOWNTO 0);
-    BEGIN
-        FOR i IN 0 TO 3 LOOP
-            FOR j IN 0 TO 3 LOOP
-                vector_out(127 - 8 * (i + 4 * j) DOWNTO 120 - 8 * (i + 4 * j)) := matrix_in(i, j);
-            END LOOP;
-        END LOOP;
-        RETURN vector_out;
-    END FUNCTION matrix_to_vector;
+    function matrix_to_vector(matrix_in : block_4x4_array) return std_logic_vector is
+        variable vector_out                 : std_logic_vector(127 downto 0);
+    begin
+        for i in 0 to 3 loop
+            for j in 0 to 3 loop
+                vector_out(127 - 8 * (i + 4 * j) downto 120 - 8 * (i + 4 * j)) := matrix_in(i, j);
+            end loop;
+        end loop;
+        return vector_out;
+    end function matrix_to_vector;
 
-    FUNCTION gf_mult(a : STD_LOGIC_VECTOR(7 DOWNTO 0)) RETURN STD_LOGIC_VECTOR IS
-    BEGIN
-        IF a(7) = '1' THEN
+    function gf_mult(a : std_logic_vector(7 downto 0)) return std_logic_vector is
+    begin
+        if a(7) = '1' then
             --  LSF and xor the result with 0x1b
-            RETURN (a(6 DOWNTO 0) & '0') XOR "00011011";
-        ELSE
+            return (a(6 downto 0) & '0') xor "00011011";
+        else
             -- LSF
-            RETURN a(6 DOWNTO 0) & '0';
-        END IF;
-    END FUNCTION;
+            return a(6 downto 0) & '0';
+        end if;
+    end function;
 
-    FUNCTION gf_mult_09(a : STD_LOGIC_VECTOR(7 DOWNTO 0)) RETURN STD_LOGIC_VECTOR IS
-    BEGIN
-        RETURN gf_mult(gf_mult(gf_mult(a))) XOR a; -- a * 8 + a
-    END FUNCTION;
+    function gf_mult_09(a : std_logic_vector(7 downto 0)) return std_logic_vector is
+    begin
+        return gf_mult(gf_mult(gf_mult(a))) xor a; -- a * 8 + a
+    end function;
 
-    FUNCTION gf_mult_0b(a : STD_LOGIC_VECTOR(7 DOWNTO 0)) RETURN STD_LOGIC_VECTOR IS
-    BEGIN
-        RETURN (gf_mult(gf_mult(gf_mult(a))) XOR gf_mult(a)) XOR a; -- a * 8 + a * 2 + a
-    END FUNCTION;
+    function gf_mult_0b(a : std_logic_vector(7 downto 0)) return std_logic_vector is
+    begin
+        return (gf_mult(gf_mult(gf_mult(a))) xor gf_mult(a)) xor a; -- a * 8 + a * 2 + a
+    end function;
 
-    FUNCTION gf_mult_0d(a : STD_LOGIC_VECTOR(7 DOWNTO 0)) RETURN STD_LOGIC_VECTOR IS
-    BEGIN
-        RETURN (gf_mult(gf_mult(gf_mult(a))) XOR gf_mult(gf_mult(a))) XOR a; -- a * 8 + a * 4 + a
-    END FUNCTION;
+    function gf_mult_0d(a : std_logic_vector(7 downto 0)) return std_logic_vector is
+    begin
+        return (gf_mult(gf_mult(gf_mult(a))) xor gf_mult(gf_mult(a))) xor a; -- a * 8 + a * 4 + a
+    end function;
 
-    FUNCTION gf_mult_0e(a : STD_LOGIC_VECTOR(7 DOWNTO 0)) RETURN STD_LOGIC_VECTOR IS
-    BEGIN
-        RETURN (gf_mult(gf_mult(gf_mult(a))) XOR gf_mult(gf_mult(a))) XOR gf_mult(a); -- a * 8 + a * 4 + a * 2
-    END FUNCTION;
+    function gf_mult_0e(a : std_logic_vector(7 downto 0)) return std_logic_vector is
+    begin
+        return (gf_mult(gf_mult(gf_mult(a))) xor gf_mult(gf_mult(a))) xor gf_mult(a); -- a * 8 + a * 4 + a * 2
+    end function;
 
-    FUNCTION subbytes_f(matrix_in : block_4x4_array;
-        phase : aes_phase_type)
-        RETURN block_4x4_array IS
-        VARIABLE matrix_out : block_4x4_array;
-    BEGIN
+    function subbytes_f(matrix_in : block_4x4_array;
+        phase                         : aes_phase_type)
+        return block_4x4_array is
+        variable matrix_out : block_4x4_array;
+    begin
 
-        FOR i IN 0 TO 3 LOOP
-            FOR j IN 0 TO 3 LOOP
-                IF (phase = CIPHER_PHASE) THEN
-                    matrix_out(i, j) := sbox(TO_INTEGER(unsigned(matrix_in(i, j)(7 DOWNTO 4))), -- x
-                    TO_INTEGER(unsigned(matrix_in(i, j)(3 DOWNTO 0)))); -- y
-                ELSIF (phase = DECIPHER_PHASE) THEN
-                    matrix_out(i, j) := inv_sbox(TO_INTEGER(unsigned(matrix_in(i, j)(7 DOWNTO 4))), -- x
-                    TO_INTEGER(unsigned(matrix_in(i, j)(3 DOWNTO 0)))); -- y
-                END IF;
-            END LOOP;
-        END LOOP;
+        for i in 0 to 3 loop
+            for j in 0 to 3 loop
+                if (phase = CIPHER_PHASE) then
+                    matrix_out(i, j) := sbox(TO_INTEGER(unsigned(matrix_in(i, j)(7 downto 4))), -- x
+                    TO_INTEGER(unsigned(matrix_in(i, j)(3 downto 0))));                         -- y
+                elsif (phase = DECIPHER_PHASE) then
+                    matrix_out(i, j) := inv_sbox(TO_INTEGER(unsigned(matrix_in(i, j)(7 downto 4))), -- x
+                    TO_INTEGER(unsigned(matrix_in(i, j)(3 downto 0))));                             -- y
+                end if;
+            end loop;
+        end loop;
 
-        RETURN matrix_out;
-    END FUNCTION subbytes_f;
+        return matrix_out;
+    end function subbytes_f;
 
-    FUNCTION shiftrows_f(matrix_in : block_4x4_array;
-        phase : aes_phase_type)
-        RETURN block_4x4_array IS
-        VARIABLE matrix_out : block_4x4_array;
-    BEGIN
-        FOR j IN 0 TO 3 LOOP
-            IF (phase = CIPHER_PHASE) THEN
+    function shiftrows_f(matrix_in : block_4x4_array;
+        phase                          : aes_phase_type)
+        return block_4x4_array is
+        variable matrix_out : block_4x4_array;
+    begin
+        for j in 0 to 3 loop
+            if (phase = CIPHER_PHASE) then
                 matrix_out(0, j) := matrix_in(0, j);
-                matrix_out(1, j) := matrix_in(1, (j + 1) MOD 4);
-                matrix_out(2, j) := matrix_in(2, (j + 2) MOD 4);
-                matrix_out(3, j) := matrix_in(3, (j + 3) MOD 4);
-            ELSIF (phase = DECIPHER_PHASE) THEN
+                matrix_out(1, j) := matrix_in(1, (j + 1) mod 4);
+                matrix_out(2, j) := matrix_in(2, (j + 2) mod 4);
+                matrix_out(3, j) := matrix_in(3, (j + 3) mod 4);
+            elsif (phase = DECIPHER_PHASE) then
                 matrix_out(0, j) := matrix_in(0, j);
-                matrix_out(1, j) := matrix_in(1, (j + 3) MOD 4);
-                matrix_out(2, j) := matrix_in(2, (j + 2) MOD 4);
-                matrix_out(3, j) := matrix_in(3, (j + 1) MOD 4);
-            END IF;
-        END LOOP;
-        RETURN matrix_out;
-    END FUNCTION shiftrows_f;
-    FUNCTION mixcolumns_f(matrix_in : block_4x4_array;
-        phase : aes_phase_type)
-        RETURN block_4x4_array IS
-        VARIABLE matrix_out : block_4x4_array;
-    BEGIN
-        FOR j IN 0 TO 3 LOOP
-            IF (phase = CIPHER_PHASE) THEN
+                matrix_out(1, j) := matrix_in(1, (j + 3) mod 4);
+                matrix_out(2, j) := matrix_in(2, (j + 2) mod 4);
+                matrix_out(3, j) := matrix_in(3, (j + 1) mod 4);
+            end if;
+        end loop;
+        return matrix_out;
+    end function shiftrows_f;
+    function mixcolumns_f(matrix_in : block_4x4_array;
+        phase                           : aes_phase_type)
+        return block_4x4_array is
+        variable matrix_out : block_4x4_array;
+    begin
+        for j in 0 to 3 loop
+            if (phase = CIPHER_PHASE) then
                 -- To multiply by 3: do (a*2 + a)
-                matrix_out(0, j) := gf_mult(matrix_in(0, j)) XOR (gf_mult(matrix_in(1, j)) XOR matrix_in(1, j)) XOR matrix_in(2, j) XOR matrix_in(3, j);
-                matrix_out(1, j) := matrix_in(0, j) XOR gf_mult(matrix_in(1, j)) XOR (gf_mult(matrix_in(2, j)) XOR matrix_in(2, j)) XOR matrix_in(3, j);
-                matrix_out(2, j) := matrix_in(0, j) XOR matrix_in(1, j) XOR gf_mult(matrix_in(2, j)) XOR (gf_mult(matrix_in(3, j)) XOR matrix_in(3, j));
-                matrix_out(3, j) := (gf_mult(matrix_in(0, j)) XOR matrix_in(0, j)) XOR matrix_in(1, j) XOR matrix_in(2, j) XOR gf_mult(matrix_in(3, j));
-            ELSIF (phase = DECIPHER_PHASE) THEN
-                matrix_out(0, j) := gf_mult_0e(matrix_in(0, j)) XOR gf_mult_0b(matrix_in(1, j)) XOR gf_mult_0d(matrix_in(2, j)) XOR gf_mult_09(matrix_in(3, j));
-                matrix_out(1, j) := gf_mult_09(matrix_in(0, j)) XOR gf_mult_0e(matrix_in(1, j)) XOR gf_mult_0b(matrix_in(2, j)) XOR gf_mult_0d(matrix_in(3, j));
-                matrix_out(2, j) := gf_mult_0d(matrix_in(0, j)) XOR gf_mult_09(matrix_in(1, j)) XOR gf_mult_0e(matrix_in(2, j)) XOR gf_mult_0b(matrix_in(3, j));
-                matrix_out(3, j) := gf_mult_0b(matrix_in(0, j)) XOR gf_mult_0d(matrix_in(1, j)) XOR gf_mult_09(matrix_in(2, j)) XOR gf_mult_0e(matrix_in(3, j));
-            END IF;
-        END LOOP;
-        RETURN matrix_out;
+                matrix_out(0, j) := gf_mult(matrix_in(0, j)) xor (gf_mult(matrix_in(1, j)) xor matrix_in(1, j)) xor matrix_in(2, j) xor matrix_in(3, j);
+                matrix_out(1, j) := matrix_in(0, j) xor gf_mult(matrix_in(1, j)) xor (gf_mult(matrix_in(2, j)) xor matrix_in(2, j)) xor matrix_in(3, j);
+                matrix_out(2, j) := matrix_in(0, j) xor matrix_in(1, j) xor gf_mult(matrix_in(2, j)) xor (gf_mult(matrix_in(3, j)) xor matrix_in(3, j));
+                matrix_out(3, j) := (gf_mult(matrix_in(0, j)) xor matrix_in(0, j)) xor matrix_in(1, j) xor matrix_in(2, j) xor gf_mult(matrix_in(3, j));
+            elsif (phase = DECIPHER_PHASE) then
+                matrix_out(0, j) := gf_mult_0e(matrix_in(0, j)) xor gf_mult_0b(matrix_in(1, j)) xor gf_mult_0d(matrix_in(2, j)) xor gf_mult_09(matrix_in(3, j));
+                matrix_out(1, j) := gf_mult_09(matrix_in(0, j)) xor gf_mult_0e(matrix_in(1, j)) xor gf_mult_0b(matrix_in(2, j)) xor gf_mult_0d(matrix_in(3, j));
+                matrix_out(2, j) := gf_mult_0d(matrix_in(0, j)) xor gf_mult_09(matrix_in(1, j)) xor gf_mult_0e(matrix_in(2, j)) xor gf_mult_0b(matrix_in(3, j));
+                matrix_out(3, j) := gf_mult_0b(matrix_in(0, j)) xor gf_mult_0d(matrix_in(1, j)) xor gf_mult_09(matrix_in(2, j)) xor gf_mult_0e(matrix_in(3, j));
+            end if;
+        end loop;
+        return matrix_out;
 
-    END FUNCTION mixcolumns_f;
+    end function mixcolumns_f;
 
-    FUNCTION addroundkey_f(matrix_in : block_4x4_array;
-        key_w : STD_LOGIC_VECTOR(127 DOWNTO 0))
-        RETURN block_4x4_array IS
-        VARIABLE key_w_matrix, matrix_out : block_4x4_array;
-    BEGIN
+    function addroundkey_f(matrix_in : block_4x4_array;
+        key_w                            : std_logic_vector(127 downto 0))
+        return block_4x4_array is
+        variable key_w_matrix, matrix_out : block_4x4_array;
+    begin
         key_w_matrix := vector_to_matrix(key_w);
-        FOR i IN 0 TO 3 LOOP
-            FOR j IN 0 TO 3 LOOP
-                matrix_out(i, j) := matrix_in(i, j) XOR key_w_matrix(i, j);
-            END LOOP;
-        END LOOP;
+        for i in 0 to 3 loop
+            for j in 0 to 3 loop
+                matrix_out(i, j) := matrix_in(i, j) xor key_w_matrix(i, j);
+            end loop;
+        end loop;
 
-        RETURN matrix_out;
-    END FUNCTION addroundkey_f;
+        return matrix_out;
+    end function addroundkey_f;
 
-    FUNCTION key_expansion(key_in : STD_LOGIC_VECTOR(127 DOWNTO 0)) RETURN STD_LOGIC_VECTOR IS
-        VARIABLE w : key_word_array;
-        VARIABLE temp : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    function key_expansion(key_in : std_logic_vector(127 downto 0)) return std_logic_vector is
+        variable w                    : key_word_array;
+        variable temp                 : std_logic_vector(31 downto 0);
         -- expanded_key size for:
         -- AES128 : 44 words -> 176 bytes -> 1408 bits
         -- AES192 : 52 words -> 208 bytes -> 1664 bits
         -- AES256 : 60 words -> 240 bytes -> 1920 bits
-        VARIABLE expanded_key : STD_LOGIC_VECTOR((Nb * (Nr + 1) * 32) - 1 DOWNTO 0);
+        variable expanded_key : std_logic_vector((Nb * (Nr + 1) * 32) - 1 downto 0);
 
-    BEGIN
+    begin
         -- Initialize the first 4 words with the initial key
-        FOR i IN 0 TO Nk - 1 LOOP
-            w(i) := key_in(127 - 32 * i DOWNTO 96 - 32 * i);
-        END LOOP;
+        for i in 0 to Nk - 1 loop
+            w(i) := key_in(127 - 32 * i downto 96 - 32 * i);
+        end loop;
 
         -- Generate the remaining key words
-        FOR i IN Nk TO 43 LOOP
+        for i in Nk to 43 loop
             temp := w(i - 1);
-            IF (i MOD Nk = 0) THEN
-                temp := subword(rotword(temp)) XOR Rcon(i/Nk - 1);
-            END IF;
+            if (i mod Nk = 0) then
+                temp := subword(rotword(temp)) xor Rcon(i/Nk - 1);
+            end if;
             -- TODO: Add ELIF Nk > 6 & i mod Nk = 4 for AES192 and AES256
 
             -- XOR with the word Nk positions back
-            w(i) := w(i - Nk) XOR temp;
-        END LOOP;
+            w(i) := w(i - Nk) xor temp;
+        end loop;
 
         -- Combine the key words into a single vector
-        FOR i IN 0 TO 43 LOOP
-            expanded_key(1407 - 32 * i DOWNTO 1376 - 32 * i) := w(i);
-        END LOOP;
+        for i in 0 to 43 loop
+            expanded_key(1407 - 32 * i downto 1376 - 32 * i) := w(i);
+        end loop;
 
-        RETURN expanded_key;
-    END FUNCTION;
+        return expanded_key;
+    end function;
 
-    FUNCTION rotword(word : STD_LOGIC_VECTOR(31 DOWNTO 0)) RETURN STD_LOGIC_VECTOR IS
-    BEGIN
-        RETURN word(23 DOWNTO 0) & word(31 DOWNTO 24);
-    END FUNCTION;
+    function rotword(word : std_logic_vector(31 downto 0)) return std_logic_vector is
+    begin
+        return word(23 downto 0) & word(31 downto 24);
+    end function;
 
-    FUNCTION subword(word : STD_LOGIC_VECTOR(31 DOWNTO 0)) RETURN STD_LOGIC_VECTOR IS
-        VARIABLE sbox_return : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    function subword(word : std_logic_vector(31 downto 0)) return std_logic_vector is
+        variable sbox_return  : std_logic_vector(31 downto 0);
 
-    BEGIN
-        FOR i IN 0 TO 3 LOOP
-            sbox_return((i * 8) + 7 DOWNTO (i * 8)) := sbox(TO_INTEGER(unsigned(word((i * 8) + 7 DOWNTO (i * 8) + 4))), -- x
-            TO_INTEGER(unsigned(word((i * 8) + 3 DOWNTO (i * 8))))); -- y
-        END LOOP;
-        RETURN sbox_return;
-    END FUNCTION;
+    begin
+        for i in 0 to 3 loop
+            sbox_return((i * 8) + 7 downto (i * 8)) := sbox(TO_INTEGER(unsigned(word((i * 8) + 7 downto (i * 8) + 4))), -- x
+            TO_INTEGER(unsigned(word((i * 8) + 3 downto (i * 8)))));                                                    -- y
+        end loop;
+        return sbox_return;
+    end function;
 
-END PACKAGE BODY aes128_lib;
+end package body aes128_lib;
