@@ -29,14 +29,14 @@ function void aes_env::build_phase(uvm_phase phase);
   `uvm_info(get_type_name(), "In build_phase", UVM_HIGH)
 
 
-  m_scoreboard = aes_scoreboard::type_id::create("m_scoreboard",this);
+  m_scoreboard = aes_scoreboard::type_id::create("m_scoreboard", this);
 
-  if (!uvm_config_db #(aes_config)::get(this, "", "config", m_config))
+  if (!uvm_config_db#(aes_config)::get(this, "", "config", m_config))
     `uvm_fatal(get_type_name(), "Unable to get aes_config")
 
-  uvm_config_db #(aes_config)::set(this, "m_aes_agent", "config", m_config);
-  uvm_config_db #(aes_config)::set(this, "m_aes_agent.m_sequencer", "config", m_config);
-  uvm_config_db #(aes_config)::set(this, "m_aes_coverage", "config", m_config);
+  uvm_config_db#(aes_config)::set(this, "m_aes_agent", "config", m_config);
+  uvm_config_db#(aes_config)::set(this, "m_aes_agent.m_sequencer", "config", m_config);
+  uvm_config_db#(aes_config)::set(this, "m_aes_coverage", "config", m_config);
 
   m_aes_agent = aes_agent::type_id::create("m_aes_agent", this);
   m_aes_coverage = aes_coverage::type_id::create("m_aes_coverage", this);
@@ -62,4 +62,4 @@ function void aes_env::end_of_elaboration_phase(uvm_phase phase);
 endfunction : end_of_elaboration_phase
 
 
-`endif // AES_ENV_SV
+`endif  // AES_ENV_SV

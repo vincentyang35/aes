@@ -1,7 +1,7 @@
 `ifndef AES_IF_SV
 `define AES_IF_SV
 
-interface aes_if(
+interface aes_if (
     input clk,
     input wire arst,
     input wire start,
@@ -10,10 +10,9 @@ interface aes_if(
     input wire cipher,
     input wire [127:0] dout,
     input wire finish
-  );
+);
 
-  timeunit      1ns;
-  timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ps;
 
   import aes_pkg::*;
 
@@ -30,4 +29,4 @@ interface aes_if(
 
 endinterface : aes_if
 
-`endif // AES_IF_SV
+`endif  // AES_IF_SV
