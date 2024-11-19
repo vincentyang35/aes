@@ -1,0 +1,8 @@
+tb/xcelium/output
+tb/xcelium/imc.log
+tb/xcelium/mdv.log
+tb/xcelium/refine1.vRefine
+tb/xcelium/xrun.history
+tb/xcelium/xrun.log
+c_model/aes_model.h.gch
+.vscode
