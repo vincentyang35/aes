@@ -38,11 +38,10 @@ endtask : run_phase
 task aes_monitor::do_mon();
   forever begin
     // Get data when DUT has completed its encryption/decryption
-    @(vif.cb iff (vif.cb.finish && !vif.cb.arst))
-    m_trans.m_din = vif.cb.din;
+    @(vif.cb iff (vif.cb.finish && !vif.cb.arst)) m_trans.m_din = vif.cb.din;
     m_trans.m_key_in = vif.cb.key_in;
     m_trans.m_cipher = vif.cb.cipher;
-    m_trans.m_dout = vif.cb.dout;
+    m_trans.m_dout   = vif.cb.dout;
 
     // Clone item
     $cast(m_trans_cloned, m_trans.clone());
@@ -53,4 +52,4 @@ task aes_monitor::do_mon();
 endtask : do_mon
 
 
-`endif // AES_MONITOR_SV
+`endif  // AES_MONITOR_SV

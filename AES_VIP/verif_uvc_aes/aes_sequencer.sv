@@ -2,7 +2,7 @@
 `define AES_SEQUENCER_SV
 
 // Sequencer class is specialization of uvm_sequencer
-typedef uvm_sequencer #(aes_tx) aes_sequencer_t;
+typedef uvm_sequencer#(aes_tx) aes_sequencer_t;
 
 
-`endif // AES_SEQUENCER_SV
+`endif  // AES_SEQUENCER_SV

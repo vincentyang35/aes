@@ -66,6 +66,7 @@ begin
                 round_counter <= 0;
                 status_array  <= (others => (others => (others => '0')));
                 dout          <= (others => '0');
+                key_w         <= (others => '0');
 
                 if (start = '1') then
                     if (CIPHER = '1') then
@@ -75,9 +76,6 @@ begin
                     end if;
                     next_state   <= LOAD;
                     expanded_key <= key_expansion(key_in);
-
-                else
-                    next_state <= IDLE;
                 end if;
 
             when LOAD =>
@@ -85,12 +83,10 @@ begin
                     key_w        <= expanded_key(1407 downto 1280);
                     status_array <= addroundkey_f(vector_to_matrix(din), expanded_key(1407 downto 1280));
                     next_state   <= SUBBYTES;
-
                 elsif (current_phase = DECIPHER_PHASE) then
                     key_w        <= expanded_key(127 downto 0);
                     status_array <= addroundkey_f(vector_to_matrix(din), expanded_key(127 downto 0));
                     next_state   <= SHIFTROWS;
-
                 end if;
 
             when SUBBYTES =>
@@ -99,10 +95,8 @@ begin
                     round_counter <= round_counter + 1;
                     key_w         <= expanded_key(1407 - 128 * (round_counter + 1) downto 1280 - 128 * (round_counter + 1));
                     next_state    <= SHIFTROWS;
-
                 elsif (current_phase = DECIPHER_PHASE) then
                     next_state <= ADDROUNDKEY;
-
                 end if;
 
             when SHIFTROWS =>
@@ -118,7 +112,6 @@ begin
                     round_counter <= round_counter + 1;
                     key_w         <= expanded_key(127 + 128 * (round_counter + 1) downto 128 * (round_counter + 1));
                     next_state    <= SUBBYTES;
-
                 end if;
 
             when MIXCOLUMNS =>

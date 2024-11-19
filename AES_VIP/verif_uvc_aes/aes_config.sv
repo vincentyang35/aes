@@ -5,11 +5,11 @@ class aes_config extends uvm_object;
 
   // do not register config class with the factory
 
-  virtual aes_if vif;
+  virtual aes_if          vif;
 
-  uvm_active_passive_enum  is_active = UVM_ACTIVE;
-  bit                      coverage_enable;
-  bit                      checks_enable;
+  uvm_active_passive_enum is_active        = UVM_ACTIVE;
+  bit                     coverage_enable;
+  bit                     checks_enable;
 
   extern function new(string name = "");
 
@@ -21,4 +21,4 @@ function aes_config::new(string name = "");
 endfunction : new
 
 
-`endif // AES_CONFIG_SV
+`endif  // AES_CONFIG_SV

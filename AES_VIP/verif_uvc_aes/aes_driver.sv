@@ -31,12 +31,11 @@ task aes_driver::run_phase(uvm_phase phase);
   vif.cb.din <= 'h0;
   vif.cb.key_in <= 'h0;
   vif.cb.cipher <= 'h0;
-  @(vif.cb iff !(vif.cb.arst));
 
-  forever
-  begin
+  forever begin
+    @(vif.cb iff !(vif.cb.arst));
     seq_item_port.get_next_item(req);
-    `uvm_info(get_type_name(), {"req item\n",req.sprint}, UVM_HIGH)
+    `uvm_info(get_type_name(), {"req item\n", req.sprint}, UVM_HIGH)
     do_drive();
     seq_item_port.item_done();
   end
@@ -49,16 +48,18 @@ task aes_driver::do_drive();
   // If any of these task finish, end of do_drive
   fork : din_and_reset
     // Task 1
-      // 1. Wait delay
-      // 2. Drive data to interface
-      // 3. Wait that the DUT finish its AES encryption/decryption
-      // 4. Set data to 0
+    // 1. Wait delay
+    // 2. Drive data to interface
+    // 3. Wait that the DUT finish its AES encryption/decryption
+    // 4. Set data to 0
     begin
-      repeat(req.m_delay) @(vif.cb);
+      repeat (req.m_delay) @(vif.cb);
       vif.cb.start <= 1'b1;
       vif.cb.din <= req.m_din;
       vif.cb.key_in <= req.m_key_in;
       vif.cb.cipher <= req.m_cipher;
+      @(vif.cb)
+      vif.cb.start <= 1'b0;
       @(vif.cb iff vif.cb.finish);
       vif.cb.start <= 'h0;
       vif.cb.din <= 'h0;
@@ -67,7 +68,7 @@ task aes_driver::do_drive();
     end
 
     // Task 2
-      // Wait until reset = 1
+    // Wait until reset = 1
     begin
       handle_reset();
     end
@@ -76,14 +77,16 @@ task aes_driver::do_drive();
 endtask : do_drive
 
 task aes_driver::handle_reset();
-  while(!vif.cb.arst) begin
+  while (!vif.cb.arst) begin
     @(vif.cb);
   end
+
   vif.cb.start <= 'h0;
   vif.cb.din <= 'h0;
   vif.cb.key_in <= 'h0;
   vif.cb.cipher <= 'h0;
+
 endtask : handle_reset
 
 
-`endif // AES_DRIVER_SV
+`endif  // AES_DRIVER_SV

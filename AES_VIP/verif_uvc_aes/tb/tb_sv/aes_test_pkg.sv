@@ -20,4 +20,4 @@ package aes_test_pkg;
 
 endpackage : aes_test_pkg
 
-`endif // AES_TEST_PKG_SV
+`endif  // AES_TEST_PKG_SV

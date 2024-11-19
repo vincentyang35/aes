@@ -1,0 +1,20 @@
+# Code coverage: match atb test bench/test harness and all its decendent
+select_coverage -block -expr -fsm -toggle -module aes_tb...
+select_coverage -block -expr -fsm -toggle -module aes_th...
+
+# Code coverage: match atb interface for assertion coverage
+select_coverage -block -expr -fsm -toggle -module aes_if...
+
+# Code coverage: match aes pkg and all its decedent to get agent coverage
+select_coverage -b -class -module aes_pkg
+select_coverage -b -class -module aes_test_pkg
+
+# Functional coverage
+select_functional 
+
+# Improve the scoping and naming of covergroup
+set_covergroup -new_instance_reporting 
+
+# Exclusion files
+deselect_macro -class -name UVM* uvm*
+deselect_coverage -b -class -module uvm_pkg

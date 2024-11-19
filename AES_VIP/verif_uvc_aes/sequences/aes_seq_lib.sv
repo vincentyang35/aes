@@ -8,7 +8,7 @@
 class aes_default_seq extends uvm_sequence #(aes_tx);
 
   `uvm_object_utils(aes_default_seq)
-  aes_config  m_config;
+  aes_config m_config;
 
   extern function new(string name = "");
   extern task body();
@@ -23,7 +23,7 @@ endfunction : new
 
 task aes_default_seq::body();
   `uvm_info(get_type_name(), "Default sequence starting", UVM_HIGH)
-  `uvm_do_with (req, {})
+  `uvm_do_with(req, {})
   `uvm_info(get_type_name(), "Default sequence completed", UVM_HIGH)
 endtask : body
 
@@ -36,7 +36,7 @@ class aes_cipher_seq extends uvm_sequence #(aes_tx);
 
   `uvm_object_utils(aes_cipher_seq)
 
-  aes_config  m_config;
+  aes_config m_config;
 
   extern function new(string name = "");
   extern task body();
@@ -51,7 +51,7 @@ endfunction : new
 
 task aes_cipher_seq::body();
   `uvm_info(get_type_name(), "Default sequence starting", UVM_HIGH)
-  `uvm_do_with (req, {m_cipher == 1'b1;})
+  `uvm_do_with(req, {m_cipher == 1'b1;})
   `uvm_info(get_type_name(), "Default sequence completed", UVM_HIGH)
 endtask : body
 
@@ -64,7 +64,7 @@ class aes_decipher_seq extends uvm_sequence #(aes_tx);
 
   `uvm_object_utils(aes_decipher_seq)
 
-  aes_config  m_config;
+  aes_config m_config;
 
   extern function new(string name = "");
   extern task body();
@@ -79,7 +79,7 @@ endfunction : new
 
 task aes_decipher_seq::body();
   `uvm_info(get_type_name(), "Default sequence starting", UVM_HIGH)
-  `uvm_do_with (req, {m_cipher == 1'b0;})
+  `uvm_do_with(req, {m_cipher == 1'b0;})
   `uvm_info(get_type_name(), "Default sequence completed", UVM_HIGH)
 endtask : body
-`endif // AES_SEQ_LIB_SV
+`endif  // AES_SEQ_LIB_SV
