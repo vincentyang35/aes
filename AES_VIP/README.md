@@ -34,13 +34,13 @@ It is composed of :
                     |--regression_logs/    // Contains regression script logs
 
 ## Usage
-TOOL REQUIRED: Cadence Incisive, GCC
+TOOL REQUIRED: Cadence Incisive
 ### Run a simulation
 
 #### run script
 With `run` you can run a test by giving arguments in the command line.
 
-`run` file will firstly compile AES C model code with GCC and then AES SV/UVM code with Xcelium.
+`run` file will execute AES SV/UVM code with Xcelium thanks to the xrun command.
 
 -	To run a test: 
     - Go to `verif_uvc_aes/tb/xcelium/` directory.
