@@ -16,7 +16,7 @@ class aes_coverage extends uvm_subscriber #(aes_tx);
 
     cp_m_key_in: coverpoint m_item.m_key_in {option.auto_bin_max = 1024;}
 
-    cp_m_cipher: coverpoint m_item.m_cipher {option.auto_bin_max = 1024;}
+    cp_m_cipher: coverpoint m_item.m_cipher {option.auto_bin_max = 2;}
 
     cross_cp_m_cipher_m_din: cross cp_m_cipher, cp_m_din;
 

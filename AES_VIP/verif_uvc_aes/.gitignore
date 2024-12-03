@@ -4,5 +4,8 @@ tb/xcelium/mdv.log
 tb/xcelium/refine1.vRefine
 tb/xcelium/xrun.history
 tb/xcelium/xrun.log
+tb/xcelium/report_s
+tb/xcelium/cov_work
+tb/xcelium/imc.key
 c_model/aes_model.h.gch
 .vscode

@@ -5,19 +5,19 @@ A simple UVM environment for all AES protocol-based IPs.
 **verif_uvc_aes** uses SV/[UVM](https://en.wikipedia.org/wiki/Universal_Verification_Methodology). 
 
 ## Features
-According to the specification, this ATB VIP supports ATB protocol features below:
+According to the specification, this AES VIP supports AES protocol features below:
   - 128-bit plaintext and ciphertext data.
   - 128-bit encryption keys.
   - Cipher and decipher operation.
 
 It is composed of :
 - VIP (agent, interface, sequence, coverage)
-  - top-level environment
-    - testbench
-    - env (scoreboard, VIP, coverage)
-    - virtual sequence
-    - VHDL DUT
-    - C model DPI
+- top-level environment
+  - testbench
+  - env (scoreboard, VIP, coverage)
+  - virtual sequence
+  - VHDL DUT
+  - C model DPI
 - run script
 
 :file_folder: Folders architecture and details :
@@ -25,7 +25,6 @@ It is composed of :
     |--doc                                 // Contains AES VIP verification plan
     |--verif_uvc_aes/                      // Contains AES UVM agent files
         |--c_model/                        // Contains AES C reference model files
-        |--dut/                            // Contains AES VHDL IP files
         |--sequences/                      // Contains AES UVM sequences files
         |--tb/                             // Contains testbench files
             |--tb_sv/                      // Contains top AES UVM environment files

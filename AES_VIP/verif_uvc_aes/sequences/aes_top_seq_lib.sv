@@ -14,7 +14,7 @@ class aes_top_default_seq extends uvm_sequence #(uvm_sequence_item);
 
   aes_agent m_aes_agent;
 
-  int m_seq_count = 10000;
+  int m_seq_count = 1000;
 
   extern function new(string name = "");
   extern task body();

@@ -74,6 +74,7 @@ task aes_driver::do_drive();
     end
   join_any : din_and_reset
 
+
 endtask : do_drive
 
 task aes_driver::handle_reset();

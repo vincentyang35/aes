@@ -45,11 +45,11 @@ run_xrun() {
     $TOP_DIR/aes_test_pkg.sv \
     $TOP_DIR/aes_th.sv \
     $TOP_DIR/aes_tb.sv \
-    -covoverwrite \
     -covfile $INPUT_DIR/covfile.txt \
     +UVM_VERBOSITY=UVM_MEDIUM $*
 }
 
+#    -covoverwrite \
 #--------------------------------------------------------------
 # execution
 #--------------------------------------------------------------

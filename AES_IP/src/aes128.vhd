@@ -76,6 +76,8 @@ begin
                     end if;
                     next_state   <= LOAD;
                     expanded_key <= key_expansion(key_in);
+                else 
+                    next_state <= IDLE;
                 end if;
 
             when LOAD =>

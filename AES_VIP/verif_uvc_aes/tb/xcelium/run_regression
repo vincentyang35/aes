@@ -32,8 +32,8 @@ run_tests_from_list() {
             file_name=$(basename "$file" .sv)   # Get file name
             ((nb_of_tests++))
             # Run the test
-            log=$(./run +UVM_TESTNAME="$file_name")    
-            # echo "$log" # Uncomment if you want to print logs
+            log=$(./run +UVM_TESTNAME="$file_name" -covtest "${file_name%.sv} +coverage_enable") 
+            echo "$log" # Uncomment if you want to print logs
             # Searchs in logs to grep for test passed
 
             result=$(grep -E "TEST PASSED|TEST FAILED" <<< "$log")
@@ -93,7 +93,7 @@ run_test () {
     echo -e "------------------------------------------------------------------"
     echo -e "ID\tTest name\t\t\t\t\tResult"
     echo -e "------------------------------------------------------------------"
-    run_tests_from_list "${parsed_test_list[@]}"
+    run_tests_from_list "${parsed_test_list[@]}" 
 
 
     echo -e "\n------------------------------------------------------------------"

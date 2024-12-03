@@ -1,8 +1,8 @@
-# Code coverage: match atb test bench/test harness and all its decendent
+# Code coverage: match aes test bench/test harness and all its decendent
 select_coverage -block -expr -fsm -toggle -module aes_tb...
 select_coverage -block -expr -fsm -toggle -module aes_th...
 
-# Code coverage: match atb interface for assertion coverage
+# Code coverage: match aes interface for assertion coverage
 select_coverage -block -expr -fsm -toggle -module aes_if...
 
 # Code coverage: match aes pkg and all its decedent to get agent coverage
